@@ -33,14 +33,14 @@ public class OntologyHandler {
 		// use the FileManager to find the input file
 		InputStream in = FileManager.get().open(inputFileName);
 		if (in != null) {
-//			throw new IllegalArgumentException("File: " + inputFileName
-//					+ " not found");
+			// throw new IllegalArgumentException("File: " + inputFileName
+			// + " not found");
 
 			// read the RDF/XML file
 			model.read(in, null);
 
 			// write it to standard out
-			model.write(System.out);
+//			model.write(System.out);
 		}
 	}
 
@@ -72,8 +72,8 @@ public class OntologyHandler {
 
 	public Resource registerDocument(DocumentModel docModel) {
 		Resource document = model
-				.createResource(docModel.getKey())
-				.addProperty(SportsOntology.DOCUMENT, docModel.getUrl())
+				.createResource(docModel.getUrl())
+				.addProperty(SportsOntology.DOCUMENT, docModel.getKey())
 				.addProperty(SportsOntology.DATE, docModel.getDate().toString());
 
 		return document;
@@ -81,12 +81,13 @@ public class OntologyHandler {
 
 	public OntologyResult query(final String docURI) {
 		OntologyResult result = new OntologyResult();
-		
+
 		StmtIterator iter = model.listStatements(new SimpleSelector(null,
 				SportsOntology.QUOTE, (RDFNode) null) {
 			@Override
 			public boolean selects(Statement s) {
-				return s.getSubject().getURI().equalsIgnoreCase(docURI);
+				String docUrl = s.getSubject().getProperty(SportsOntology.DOCUMENT).getString();
+				return docUrl.equalsIgnoreCase(docURI);
 			}
 		});
 
@@ -99,15 +100,15 @@ public class OntologyHandler {
 
 				String person = stmn.getProperty(SportsOntology.PERSONNAME)
 						.getString();
-				
+
 				PersonQuotes personQuote = new PersonQuotes();
 				personQuote.addQuote(quote);
 				personQuote.setPerson(person);
 
-				result.addQuote(personQuote);				
+				result.addQuote(personQuote);
 			}
 		}
-		
+
 		return result;
 	}
 
