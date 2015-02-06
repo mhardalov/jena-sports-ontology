@@ -43,6 +43,106 @@ public class OntologyHandler {
 		return date;
 	}
 
+	private boolean isQuoteAcceptable(final String docURI,
+			final String personName, final Date afterDate,
+			final Date beforeDate, Statement s) {
+
+		Statement docUrl = s.getSubject().getProperty(SportsOntology.DOCUMENT);
+
+		// ignore docUrl param if empty
+		boolean found = (docUrl == null) || (docURI == "") || (docURI == null)
+				|| docUrl.getString().equalsIgnoreCase(docURI);
+
+		if (found && personName != null && personName != "") {
+			String ontoPerson = s.getProperty(SportsOntology.PERSONNAME)
+					.getString();
+			found = found && ontoPerson.equalsIgnoreCase(personName);
+		}
+
+		if (found && (afterDate != null || beforeDate != null)) {
+			String startDate = s.getSubject().getProperty(SportsOntology.DATE)
+					.getString();
+
+			Date date;
+			try {
+				date = decodeDate(startDate);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+
+			if (afterDate != null) {
+				found = found
+						&& (afterDate != null && date.compareTo(afterDate) >= 0);
+			}
+
+			if (beforeDate != null) {
+				found = found
+						&& (beforeDate != null && date.compareTo(beforeDate) <= 0);
+			}
+		}
+
+		return found;
+	}
+
+	private boolean isResultAcceptable(final String docURI,
+			final String competitor, final Date afterDate,
+			final Date beforeDate, Statement s) {
+
+		Statement docUrl = s.getSubject().getProperty(SportsOntology.DOCUMENT);
+
+		// ignore docUrl param if empty
+		boolean found = (docUrl == null) || (docURI == "") || (docURI == null)
+				|| docUrl.getString().equalsIgnoreCase(docURI);
+
+		if (found && competitor != null && competitor != "") {
+			StmtIterator iter2 = s.getResource().listProperties(
+					SportsOntology.COMPETITORS);
+
+			boolean teamFound = false;
+
+			if (iter2.hasNext()) {
+				while (iter2.hasNext() && !teamFound) {
+					Statement stmnCompetitor = iter2.nextStatement();
+
+					teamFound = stmnCompetitor
+							.getProperty(SportsOntology.COMPETITOR)
+							.getProperty(SportsOntology.COMPETITOR_NAME)
+							.getString().equalsIgnoreCase(competitor);
+				}
+			}
+
+			found = found && teamFound;
+		}
+
+		if (found && (afterDate != null || beforeDate != null)) {
+			String startDate = s.getSubject().getProperty(SportsOntology.DATE)
+					.getString();
+
+			Date date;
+			try {
+				date = decodeDate(startDate);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+
+			if (afterDate != null) {
+				found = found
+						&& (afterDate != null && date.compareTo(afterDate) >= 0);
+			}
+
+			if (beforeDate != null) {
+				found = found
+						&& (beforeDate != null && date.compareTo(beforeDate) <= 0);
+			}
+		}
+
+		return found;
+	}
+
 	public void open(String inputFileName) {
 		// use the FileManager to find the input file
 		InputStream in = FileManager.get().open(inputFileName);
@@ -76,12 +176,26 @@ public class OntologyHandler {
 			Resource document) {
 		List<String> competitors = resultRelation.getCompetitors();
 
-		document.addProperty(SportsOntology.EVENT, model.createResource()
-				.addProperty(SportsOntology.RESULT, resultRelation.getResult()));
+		Resource eventResource = model.createResource().addProperty(
+				SportsOntology.RESULT, resultRelation.getResult());
 
-		for (String competitor : competitors) {
-			document.addProperty(SportsOntology.COMPETITOR, competitor);
+		for (int i = 0; i < competitors.size(); i++) {
+			String competitor = competitors.get(i);
+
+			eventResource.addProperty(
+					SportsOntology.COMPETITORS,
+					model.createResource().addProperty(
+							SportsOntology.COMPETITOR,
+							model.createResource()
+									.addProperty(
+											SportsOntology.COMPETITOR_NAME,
+											competitor)
+									.addProperty(
+											SportsOntology.COMPETITOR_ORDER,
+											Integer.toString(i))));
 		}
+
+		document.addProperty(SportsOntology.EVENT, eventResource);
 	}
 
 	public Resource registerDocument(DocumentModel docModel) {
@@ -93,50 +207,17 @@ public class OntologyHandler {
 		return document;
 	}
 
-	public List<PersonQuotes> getQuotes(final String personName,
-			final Date afterDate, final Date beforeDate) {
-
+	private List<PersonQuotes> getQuotes(final String docURI,
+			final String personName, final Date afterDate, final Date beforeDate) {
 		List<PersonQuotes> result = new ArrayList<PersonQuotes>();
 
 		StmtIterator iter = model.listStatements(new SimpleSelector(null,
 				SportsOntology.QUOTE, (RDFNode) null) {
 			@Override
 			public boolean selects(Statement s) {
-				boolean found = true;
 
-				if (found && personName != null && personName != "") {
-					String ontoPerson = s
-							.getProperty(SportsOntology.PERSONNAME).getString();
-					found = found && ontoPerson.equalsIgnoreCase(personName);
-				}
-
-				if (found && (afterDate != null || beforeDate != null)) {
-					String startDate = s.getSubject()
-							.getProperty(SportsOntology.DATE).getString();
-
-					Date date;
-					try {
-						date = decodeDate(startDate);
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						return false;
-					}
-
-					if (afterDate != null) {
-						found = found
-								&& (afterDate != null && date
-										.compareTo(afterDate) >= 0);
-					}
-
-					if (beforeDate != null) {
-						found = found
-								&& (beforeDate != null && date
-										.compareTo(beforeDate) <= 0);
-					}
-				}
-
-				return found;
+				return isQuoteAcceptable(docURI, personName, afterDate,
+						beforeDate, s);
 			}
 		});
 
@@ -161,18 +242,17 @@ public class OntologyHandler {
 		return result;
 	}
 
-	public OntologyResult query(final String docURI) {
-		OntologyResult result = new OntologyResult();
+	private List<ResultRelation> getResults(final String docURI,
+			final String competitor, final Date afterDate, final Date beforeDate) {
+		List<ResultRelation> result = new ArrayList<ResultRelation>();
 
 		StmtIterator iter = model.listStatements(new SimpleSelector(null,
-				SportsOntology.QUOTE, (RDFNode) null) {
+				SportsOntology.EVENT, (RDFNode) null) {
 			@Override
 			public boolean selects(Statement s) {
-				Statement docUrl = s.getSubject().getProperty(
-						SportsOntology.DOCUMENT);
 
-				return (docUrl != null)
-						&& docUrl.getString().equalsIgnoreCase(docURI);
+				return isResultAcceptable(docURI, competitor, afterDate,
+						beforeDate, s);
 			}
 		});
 
@@ -180,21 +260,54 @@ public class OntologyHandler {
 			while (iter.hasNext()) {
 				Statement stmn = iter.nextStatement();
 
-				String quote = stmn.getProperty(SportsOntology.QUOTEDTEXT)
-						.getString();
+				ResultRelation resultRelation = new ResultRelation();
 
-				String person = stmn.getProperty(SportsOntology.PERSONNAME)
-						.getString();
+				resultRelation.setResult(stmn
+						.getProperty(SportsOntology.RESULT).getString());
 
-				PersonQuotes personQuote = new PersonQuotes();
-				personQuote.addQuote(quote);
-				personQuote.setPerson(person);
+				StmtIterator iter2 = stmn.getResource().listProperties(
+						SportsOntology.COMPETITORS);
 
-				result.addQuote(personQuote);
+				List<String> comps = new ArrayList<String>();
+				if (iter2.hasNext()) {
+					while (iter2.hasNext()) {
+						Statement stmnCompetitor = iter2.nextStatement();
+
+						comps.add(stmnCompetitor
+								.getProperty(SportsOntology.COMPETITOR)
+								.getProperty(SportsOntology.COMPETITOR_NAME)
+								.getString());
+					}
+				}
+
+				resultRelation.setCompetitors(comps);
+
+				result.add(resultRelation);
 			}
 		}
 
 		return result;
+	}
+
+	public OntologyResult query(final String docURI) {
+		OntologyResult result = new OntologyResult();
+
+		result.setQuotes(this.getQuotes(docURI, "", null, null));
+		result.setResults(this.getResults(docURI, "", null, null));
+
+		return result;
+	}
+
+	public List<PersonQuotes> queryQuotes(final String personName,
+			final Date afterDate, final Date beforeDate) {
+
+		return this.getQuotes("", personName, afterDate, beforeDate);
+	}
+
+	public List<ResultRelation> queryResults(final String competitor,
+			final Date afterDate, final Date beforeDate) {
+
+		return this.getResults("", competitor, afterDate, beforeDate);
 	}
 
 	public void print() {

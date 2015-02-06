@@ -22,7 +22,10 @@ public class SportsOntology {
 	public static final Property DOCUMENT = m.createProperty(uri + "DOCUMENT");	
 	public static final Property QUOTE = m.createProperty(uri + "QUOTE");
 	public static final Resource PERSON = m.createResource(uri + "PERSON");
-	public static final Property COMPETITOR = m.createProperty(uri + "COMPETITOR");	
+	public static final Property COMPETITORS = m.createProperty(uri + "COMPETITORS");
+	public static final Property COMPETITOR = m.createProperty(uri + "COMPETITOR");
+	public static final Property COMPETITOR_ORDER = m.createProperty(uri + "COMPETITOR_ORDER");
+	public static final Property COMPETITOR_NAME = m.createProperty(uri + "COMPETITOR_NAME");
 	public static final Property RESULT = m.createProperty(uri, "RESULT");
 	public static final Property DATE = m.createProperty(uri, "DATE");
 	public static final Property URL = m.createProperty(uri, "URL");

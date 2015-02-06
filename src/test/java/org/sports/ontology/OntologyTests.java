@@ -64,13 +64,36 @@ public class OntologyTests {
 	@Test
 	public void ontologyQueryTest() {
 		OntologyHandler handler = new OntologyHandler();
-		handler.open(ontologyFile);
+		//handler.open(ontologyFile);
+		
+		PersonQuotes quotes = new PersonQuotes();
+		quotes.setPerson("John Smith");
+		quotes.addQuote("I'm the best.");
+		quotes.addQuote("Ontology testing with some quotes by me.");
+		quotes.addQuote("Third sentsence for today.");
+
+		ResultRelation relation = new ResultRelation();
+		relation.setResult("7:2");
+		relation.getCompetitors().add("Levski");
+		relation.getCompetitors().add("CSKA");
+
+		DocumentModel document = new DocumentModel();
+		document.setContent("Empty");
+		document.setUrl("http://somewhere/JohnSmith");
+		document.setDate(Calendar.getInstance().getTime());
+		document.setKey("http://somewhere/JohnSmith");
+		
+		Resource resource = handler.registerDocument(document);
+		handler.addPersonQuote(quotes, resource);
+		handler.addResultRelation(relation, resource);
 		// bg.sportal.www:http/news.php?news=342208
 		// http://www.sportal.bg/news.php?news=342208
 		OntologyResult result = handler
-				.query("http://www.sportal.bg/news.php?news=344152");
+				.query("http://somewhere/JohnSmith");
 
-		Assert.assertEquals(result.getQuotes().size(), 1);
+		Assert.assertEquals(result.getQuotes().size(), 3);
+		Assert.assertEquals(result.getResults().size(), 1);
+		Assert.assertEquals(result.getResults().get(0).getCompetitors().size(), 2);
 	}
 
 	@Test
@@ -79,7 +102,7 @@ public class OntologyTests {
 		handler.open(ontologyFile);
 		// bg.sportal.www:http/news.php?news=342208
 		// http://www.sportal.bg/news.php?news=342208
-		List<PersonQuotes> quotes = handler.getQuotes("Стефан Киков", null,
+		List<PersonQuotes> quotes = handler.queryQuotes("Стефан Киков", null,
 				null);
 		Assert.assertEquals(quotes.size(), 1);
 
@@ -91,7 +114,7 @@ public class OntologyTests {
 		handler.open(ontologyFile);
 		// bg.sportal.www:http/news.php?news=342208
 		// http://www.sportal.bg/news.php?news=342208
-		List<PersonQuotes> quotes = handler.getQuotes("Стефан Киков", Calendar
+		List<PersonQuotes> quotes = handler.queryQuotes("Стефан Киков", Calendar
 				.getInstance().getTime(), Calendar.getInstance().getTime());
 		Assert.assertEquals(quotes.size(), 0);
 
@@ -105,7 +128,7 @@ public class OntologyTests {
 		// http://www.sportal.bg/news.php?news=342208
 		Calendar start = Calendar.getInstance();
 		start.set(2002, 0, 1);
-		List<PersonQuotes> quotes = handler.getQuotes("Стефан Киков", start.getTime(),
+		List<PersonQuotes> quotes = handler.queryQuotes("Стефан Киков", start.getTime(),
 				Calendar.getInstance().getTime());
 		Assert.assertEquals(quotes.size(), 1);
 
@@ -117,7 +140,7 @@ public class OntologyTests {
 		handler.open(ontologyFile);
 		// bg.sportal.www:http/news.php?news=342208
 		// http://www.sportal.bg/news.php?news=342208
-		List<PersonQuotes> quotes = handler.getQuotes(null, null, null);
+		List<PersonQuotes> quotes = handler.queryQuotes(null, null, null);
 		Assert.assertTrue(quotes.size() > 0);
 
 	}
