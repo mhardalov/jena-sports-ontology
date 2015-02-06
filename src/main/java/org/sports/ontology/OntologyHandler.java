@@ -176,8 +176,14 @@ public class OntologyHandler {
 			Resource document) {
 		List<String> competitors = resultRelation.getCompetitors();
 
-		Resource eventResource = model.createResource().addProperty(
-				SportsOntology.RESULT, resultRelation.getResult());
+		Resource eventResource = model
+				.createResource()
+				.addProperty(SportsOntology.RESULT, resultRelation.getResult())
+				.addProperty(SportsOntology.RESULT_TYPE,
+						resultRelation.getType().toString());
+
+		String location = resultRelation.getLocation();
+		eventResource.addProperty(SportsOntology.LOCATION, location);
 
 		for (int i = 0; i < competitors.size(); i++) {
 			String competitor = competitors.get(i);
@@ -260,10 +266,15 @@ public class OntologyHandler {
 			while (iter.hasNext()) {
 				Statement stmn = iter.nextStatement();
 
-				ResultRelation resultRelation = new ResultRelation();
+				String type = stmn.getProperty(SportsOntology.RESULT_TYPE)
+						.getString();
+				ResultRelation resultRelation = new ResultRelation(type);
 
 				resultRelation.setResult(stmn
 						.getProperty(SportsOntology.RESULT).getString());
+
+				resultRelation.setLocation(stmn.getProperty(
+						SportsOntology.LOCATION).getString());
 
 				StmtIterator iter2 = stmn.getResource().listProperties(
 						SportsOntology.COMPETITORS);

@@ -27,6 +27,7 @@ public class SportsOntology {
 	public static final Property COMPETITOR_ORDER = m.createProperty(uri + "COMPETITOR_ORDER");
 	public static final Property COMPETITOR_NAME = m.createProperty(uri + "COMPETITOR_NAME");
 	public static final Property RESULT = m.createProperty(uri, "RESULT");
+	public static final Property RESULT_TYPE = m.createProperty(uri, "RESULT_TYPE");
 	public static final Property DATE = m.createProperty(uri, "DATE");
 	public static final Property URL = m.createProperty(uri, "URL");
 	public static final Property LOCATION = m.createProperty(uri, "LOCATION");

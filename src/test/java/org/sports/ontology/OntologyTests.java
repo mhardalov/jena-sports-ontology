@@ -24,7 +24,7 @@ public class OntologyTests {
 		quotes.addQuote("Ontology testing with some quotes by me.");
 		quotes.addQuote("Third sentsence for today.");
 
-		ResultRelation relation = new ResultRelation();
+		ResultRelation relation = new ResultRelation("sample");
 		relation.setResult("7:2");
 		relation.getCompetitors().add("Levski");
 		relation.getCompetitors().add("CSKA");
@@ -45,14 +45,15 @@ public class OntologyTests {
 		quotes.addQuote("Second Quote by me.");
 		quotes.addQuote("Come on do it!");
 
-		relation = new ResultRelation();
+		relation = new ResultRelation("location");
 		relation.setResult("10s");
 		relation.getCompetitors().add("Bolt");
+		relation.setLocation("Sidney");
 		document = new DocumentModel();
 		document.setContent("Empty");
 		document.setUrl("http://somewhere/TomJohnes");
 		document.setDate(Calendar.getInstance().getTime());
-		document.setKey("http://somewhere/TomJohnes");
+		document.setKey("http://somewhere/TomJohnes");		
 
 		resource = handler.registerDocument(document);
 		handler.addPersonQuote(quotes, resource);
@@ -72,7 +73,7 @@ public class OntologyTests {
 		quotes.addQuote("Ontology testing with some quotes by me.");
 		quotes.addQuote("Third sentsence for today.");
 
-		ResultRelation relation = new ResultRelation();
+		ResultRelation relation = new ResultRelation("sample");
 		relation.setResult("7:2");
 		relation.getCompetitors().add("Levski");
 		relation.getCompetitors().add("CSKA");
