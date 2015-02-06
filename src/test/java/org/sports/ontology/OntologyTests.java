@@ -1,9 +1,12 @@
 package org.sports.ontology;
 
 import java.util.Calendar;
+import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.sports.ontology.model.DocumentModel;
+import org.sports.ontology.model.OntologyResult;
 import org.sports.ontology.model.PersonQuotes;
 import org.sports.ontology.model.ResultRelation;
 
@@ -30,6 +33,7 @@ public class OntologyTests {
 		document.setContent("Empty");
 		document.setUrl("http://somewhere/JohnSmith");
 		document.setDate(Calendar.getInstance().getTime());
+		document.setKey("http://somewhere/JohnSmith");
 		
 		OntologyHandler handler = new OntologyHandler();
 		Resource resource = handler.registerDocument(document);
@@ -48,14 +52,13 @@ public class OntologyTests {
 		document.setContent("Empty");
 		document.setUrl("http://somewhere/TomJohnes");
 		document.setDate(Calendar.getInstance().getTime());
+		document.setKey("http://somewhere/TomJohnes");
 		
 		resource = handler.registerDocument(document);
 		handler.addPersonQuote(quotes, resource);
 		handler.addResultRelation(relation, resource);
 		
-		handler.print();
-		
-		
+		handler.print();		
 	}
 	
 	@Test
@@ -64,6 +67,19 @@ public class OntologyTests {
 		handler.open(ontologyFile);
 		//bg.sportal.www:http/news.php?news=342208
 		//http://www.sportal.bg/news.php?news=342208
-		handler.query("http://www.sportal.bg/news.php?news=344152");
+		OntologyResult result = handler.query("http://www.sportal.bg/news.php?news=344152");
+		
+		Assert.assertEquals(result.getQuotes().size(), 1);
+	}
+	
+	@Test
+	public void ontologyQueryByPerson() {
+		OntologyHandler handler = new OntologyHandler();
+		handler.open(ontologyFile);
+		//bg.sportal.www:http/news.php?news=342208
+		//http://www.sportal.bg/news.php?news=342208
+		List<PersonQuotes> quotes = handler.getQuotes("Стефан Киков", null, null);
+		Assert.assertEquals(quotes.size(), 1);
+		
 	}
 }

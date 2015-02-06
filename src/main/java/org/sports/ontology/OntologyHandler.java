@@ -4,7 +4,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.sports.ontology.model.DocumentModel;
 import org.sports.ontology.model.OntologyResult;
@@ -29,6 +35,15 @@ public class OntologyHandler {
 		model.setNsPrefix("sports", SportsOntology.getURI());
 	}
 
+	private Date decodeDate(String dateStr) throws ParseException {
+		TimeZone tz = TimeZone.getTimeZone("UTC");
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		df.setTimeZone(tz);
+		Date date = df.parse(dateStr);
+
+		return date;
+	}
+
 	public void open(String inputFileName) {
 		// use the FileManager to find the input file
 		InputStream in = FileManager.get().open(inputFileName);
@@ -40,7 +55,7 @@ public class OntologyHandler {
 			model.read(in, null);
 
 			// write it to standard out
-//			model.write(System.out);
+			// model.write(System.out);
 		}
 	}
 
@@ -79,6 +94,74 @@ public class OntologyHandler {
 		return document;
 	}
 
+	public List<PersonQuotes> getQuotes(final String personName,
+			final Date afterDate, final Date beforeDate) {
+
+		List<PersonQuotes> result = new ArrayList<PersonQuotes>();
+
+		StmtIterator iter = model.listStatements(new SimpleSelector(null,
+				SportsOntology.QUOTE, (RDFNode) null) {
+			@Override
+			public boolean selects(Statement s) {
+				boolean found = true;
+
+				if (found && personName != "") {
+					String ontoPerson = s
+							.getProperty(SportsOntology.PERSONNAME).getString();
+					found = found && ontoPerson.equalsIgnoreCase(personName);
+				}
+
+				if (found && (afterDate != null || beforeDate != null)) {
+					String startDate = s.getSubject()
+							.getProperty(SportsOntology.DATE).getString();
+
+					Date date;
+					try {
+						date = decodeDate(startDate);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return false;
+					}
+
+					if (afterDate != null) {
+						found = found
+								&& (afterDate != null && date
+										.compareTo(afterDate) >= 0);
+					}
+
+					if (beforeDate != null) {
+						found = found
+								&& (beforeDate != null && date
+										.compareTo(afterDate) <= 0);
+					}
+				}
+
+				return found;
+			}
+		});
+
+		if (iter.hasNext()) {
+			while (iter.hasNext()) {
+				Statement stmn = iter.nextStatement();
+
+				String quote = stmn.getProperty(SportsOntology.QUOTEDTEXT)
+						.getString();
+
+				String person = stmn.getProperty(SportsOntology.PERSONNAME)
+						.getString();
+
+				PersonQuotes personQuote = new PersonQuotes();
+				personQuote.addQuote(quote);
+				personQuote.setPerson(person);
+
+				result.add(personQuote);
+			}
+		}
+
+		return result;
+	}
+
 	public OntologyResult query(final String docURI) {
 		OntologyResult result = new OntologyResult();
 
@@ -86,8 +169,10 @@ public class OntologyHandler {
 				SportsOntology.QUOTE, (RDFNode) null) {
 			@Override
 			public boolean selects(Statement s) {
-				String docUrl = s.getSubject().getProperty(SportsOntology.DOCUMENT).getString();
-				return docUrl.equalsIgnoreCase(docURI);
+				Statement docUrl = s.getSubject()
+						.getProperty(SportsOntology.DOCUMENT);
+				
+				return (docUrl != null) && docUrl.getString().equalsIgnoreCase(docURI);
 			}
 		});
 
