@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -37,7 +38,7 @@ public class OntologyHandler {
 
 	private Date decodeDate(String dateStr) throws ParseException {
 		TimeZone tz = TimeZone.getTimeZone("UTC");
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		SimpleDateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 		df.setTimeZone(tz);
 		Date date = df.parse(dateStr);
 
@@ -105,7 +106,7 @@ public class OntologyHandler {
 			public boolean selects(Statement s) {
 				boolean found = true;
 
-				if (found && personName != "") {
+				if (found && personName != null && personName != "") {
 					String ontoPerson = s
 							.getProperty(SportsOntology.PERSONNAME).getString();
 					found = found && ontoPerson.equalsIgnoreCase(personName);
@@ -133,7 +134,7 @@ public class OntologyHandler {
 					if (beforeDate != null) {
 						found = found
 								&& (beforeDate != null && date
-										.compareTo(afterDate) <= 0);
+										.compareTo(beforeDate) <= 0);
 					}
 				}
 
@@ -169,10 +170,11 @@ public class OntologyHandler {
 				SportsOntology.QUOTE, (RDFNode) null) {
 			@Override
 			public boolean selects(Statement s) {
-				Statement docUrl = s.getSubject()
-						.getProperty(SportsOntology.DOCUMENT);
-				
-				return (docUrl != null) && docUrl.getString().equalsIgnoreCase(docURI);
+				Statement docUrl = s.getSubject().getProperty(
+						SportsOntology.DOCUMENT);
+
+				return (docUrl != null)
+						&& docUrl.getString().equalsIgnoreCase(docURI);
 			}
 		});
 
