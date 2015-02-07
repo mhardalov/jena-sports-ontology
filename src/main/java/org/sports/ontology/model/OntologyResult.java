@@ -4,35 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OntologyResult {
-	private List<ResultRelation> results;
-	private List<PersonQuotes> quotes;
+	private List<DocumentResults> results;
+	private List<DocumentQuotes> quotes;
 
 	public OntologyResult() {
-		this.results = new ArrayList<ResultRelation>();
-		this.quotes = new ArrayList<PersonQuotes>();
+		this.results = new ArrayList<DocumentResults>();
+		this.quotes = new ArrayList<DocumentQuotes>();
 	}
 
-	public List<ResultRelation> getResults() {
+	public List<DocumentResults> getResults() {
 		return results;
 	}
 
-	public void setResults(List<ResultRelation> results) {
+	public void setResults(List<DocumentResults> results) {
 		this.results = results;
 	}
 	
-	public void addResult(ResultRelation result) {
+	public void addResult(DocumentResults result) {		
 		this.results.add(result);
 	}
 
-	public List<PersonQuotes> getQuotes() {
+	public List<DocumentQuotes> getQuotes() {
 		return quotes;
 	}
 
-	public void setQuotes(List<PersonQuotes> quotes) {
+	public void setQuotes(List<DocumentQuotes> quotes) {
 		this.quotes = quotes;
 	}
 	
-	public void addQuote(PersonQuotes quote) {
+	public void addQuote(DocumentQuotes quote) {
 		this.quotes.add(quote);
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sports.ontology.model.DocumentModel;
+import org.sports.ontology.model.DocumentQuotes;
 import org.sports.ontology.model.OntologyResult;
 import org.sports.ontology.model.PersonQuotes;
 import org.sports.ontology.model.ResultRelation;
@@ -94,7 +95,7 @@ public class OntologyTests {
 
 		Assert.assertEquals(result.getQuotes().size(), 3);
 		Assert.assertEquals(result.getResults().size(), 1);
-		Assert.assertEquals(result.getResults().get(0).getCompetitors().size(), 2);
+		Assert.assertEquals(result.getResults().get(0).getResults().getCompetitors().size(), 2);
 	}
 
 	@Test
@@ -103,7 +104,7 @@ public class OntologyTests {
 		handler.open(ontologyFile);
 		// bg.sportal.www:http/news.php?news=342208
 		// http://www.sportal.bg/news.php?news=342208
-		List<PersonQuotes> quotes = handler.queryQuotes("Венцеслав Стефанов", null,
+		List<DocumentQuotes> quotes = handler.queryQuotes("Венцеслав Стефанов", null,
 				null);
 		Assert.assertEquals(quotes.size(), 2);
 
@@ -115,7 +116,7 @@ public class OntologyTests {
 		handler.open(ontologyFile);
 		// bg.sportal.www:http/news.php?news=342208
 		// http://www.sportal.bg/news.php?news=342208
-		List<PersonQuotes> quotes = handler.queryQuotes("Венцеслав Стефанов", Calendar
+		List<DocumentQuotes> quotes = handler.queryQuotes("Венцеслав Стефанов", Calendar
 				.getInstance().getTime(), Calendar.getInstance().getTime());
 		Assert.assertEquals(quotes.size(), 0);
 
@@ -129,7 +130,7 @@ public class OntologyTests {
 		// http://www.sportal.bg/news.php?news=342208
 		Calendar start = Calendar.getInstance();
 		start.set(2002, 0, 1);
-		List<PersonQuotes> quotes = handler.queryQuotes("Венцеслав Стефанов", start.getTime(),
+		List<DocumentQuotes> quotes = handler.queryQuotes("Венцеслав Стефанов", start.getTime(),
 				Calendar.getInstance().getTime());
 		Assert.assertEquals(quotes.size(), 2);
 
@@ -141,7 +142,7 @@ public class OntologyTests {
 		handler.open(ontologyFile);
 		// bg.sportal.www:http/news.php?news=342208
 		// http://www.sportal.bg/news.php?news=342208
-		List<PersonQuotes> quotes = handler.queryQuotes(null, null, null);
+		List<DocumentQuotes> quotes = handler.queryQuotes(null, null, null);
 		Assert.assertTrue(quotes.size() > 0);
 
 	}

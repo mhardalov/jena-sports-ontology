@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.sports.ontology.model.DocumentModel;
+import org.sports.ontology.model.DocumentQuotes;
+import org.sports.ontology.model.DocumentResults;
 import org.sports.ontology.model.OntologyResult;
 import org.sports.ontology.model.PersonQuotes;
 import org.sports.ontology.model.ResultRelation;
@@ -41,6 +43,29 @@ public class OntologyHandler {
 		Date date = df.parse(dateStr);
 
 		return date;
+	}
+	
+	private DocumentModel parseDocumentInfo(Statement statment) {
+		
+		String url = statment.getSubject().getProperty(SportsOntology.DOCUMENT).getString();
+		String startDate = statment.getSubject().getProperty(SportsOntology.DATE)
+				.getString();
+
+		Date date;
+		try {
+			date = decodeDate(startDate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			date = null;
+		}
+		
+		DocumentModel document = new DocumentModel();
+		document.setKey(url);
+		document.setUrl(url);
+		document.setDate(date);
+		
+		return document;
 	}
 
 	private boolean isQuoteAcceptable(final String docURI,
@@ -213,9 +238,9 @@ public class OntologyHandler {
 		return document;
 	}
 
-	private List<PersonQuotes> getQuotes(final String docURI,
+	private List<DocumentQuotes> getQuotes(final String docURI,
 			final String personName, final Date afterDate, final Date beforeDate) {
-		List<PersonQuotes> result = new ArrayList<PersonQuotes>();
+		List<DocumentQuotes> result = new ArrayList<DocumentQuotes>();		
 
 		StmtIterator iter = model.listStatements(new SimpleSelector(null,
 				SportsOntology.QUOTE, (RDFNode) null) {
@@ -239,18 +264,20 @@ public class OntologyHandler {
 
 				PersonQuotes personQuote = new PersonQuotes();
 				personQuote.addQuote(quote);
-				personQuote.setPerson(person);
-
-				result.add(personQuote);
+				personQuote.setPerson(person);				
+				
+				DocumentModel document = this.parseDocumentInfo(stmn);
+				DocumentQuotes docQuotes = new DocumentQuotes(document, personQuote);
+				result.add(docQuotes);
 			}
-		}
+		}		
 
 		return result;
 	}
 
-	private List<ResultRelation> getResults(final String docURI,
+	private List<DocumentResults> getResults(final String docURI,
 			final String competitor, final Date afterDate, final Date beforeDate) {
-		List<ResultRelation> result = new ArrayList<ResultRelation>();
+		List<DocumentResults> result = new ArrayList<DocumentResults>();		
 
 		StmtIterator iter = model.listStatements(new SimpleSelector(null,
 				SportsOntology.EVENT, (RDFNode) null) {
@@ -291,9 +318,11 @@ public class OntologyHandler {
 					}
 				}
 
-				resultRelation.setCompetitors(comps);
-
-				result.add(resultRelation);
+				resultRelation.setCompetitors(comps);				
+				
+				DocumentModel document = this.parseDocumentInfo(stmn);
+				DocumentResults docResults = new DocumentResults(document, resultRelation);
+				result.add(docResults);
 			}
 		}
 
@@ -309,13 +338,13 @@ public class OntologyHandler {
 		return result;
 	}
 
-	public List<PersonQuotes> queryQuotes(final String personName,
+	public List<DocumentQuotes> queryQuotes(final String personName,
 			final Date afterDate, final Date beforeDate) {
 
 		return this.getQuotes("", personName, afterDate, beforeDate);
 	}
 
-	public List<ResultRelation> queryResults(final String competitor,
+	public List<DocumentResults> queryResults(final String competitor,
 			final Date afterDate, final Date beforeDate) {
 
 		return this.getResults("", competitor, afterDate, beforeDate);
