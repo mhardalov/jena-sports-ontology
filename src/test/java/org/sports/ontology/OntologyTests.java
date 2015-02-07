@@ -80,7 +80,7 @@ public class OntologyTests {
 
 		DocumentModel document = new DocumentModel();
 		document.setContent("Empty");
-		document.setUrl("http://somewhere/JohnSmith");
+		document.setUrl("http://somewhere/JohnSmith#url");
 		document.setDate(Calendar.getInstance().getTime());
 		document.setKey("http://somewhere/JohnSmith");
 		
@@ -103,9 +103,9 @@ public class OntologyTests {
 		handler.open(ontologyFile);
 		// bg.sportal.www:http/news.php?news=342208
 		// http://www.sportal.bg/news.php?news=342208
-		List<PersonQuotes> quotes = handler.queryQuotes("Стефан Киков", null,
+		List<PersonQuotes> quotes = handler.queryQuotes("Венцеслав Стефанов", null,
 				null);
-		Assert.assertEquals(quotes.size(), 1);
+		Assert.assertEquals(quotes.size(), 2);
 
 	}
 
@@ -115,7 +115,7 @@ public class OntologyTests {
 		handler.open(ontologyFile);
 		// bg.sportal.www:http/news.php?news=342208
 		// http://www.sportal.bg/news.php?news=342208
-		List<PersonQuotes> quotes = handler.queryQuotes("Стефан Киков", Calendar
+		List<PersonQuotes> quotes = handler.queryQuotes("Венцеслав Стефанов", Calendar
 				.getInstance().getTime(), Calendar.getInstance().getTime());
 		Assert.assertEquals(quotes.size(), 0);
 
@@ -129,9 +129,9 @@ public class OntologyTests {
 		// http://www.sportal.bg/news.php?news=342208
 		Calendar start = Calendar.getInstance();
 		start.set(2002, 0, 1);
-		List<PersonQuotes> quotes = handler.queryQuotes("Стефан Киков", start.getTime(),
+		List<PersonQuotes> quotes = handler.queryQuotes("Венцеслав Стефанов", start.getTime(),
 				Calendar.getInstance().getTime());
-		Assert.assertEquals(quotes.size(), 1);
+		Assert.assertEquals(quotes.size(), 2);
 
 	}
 
