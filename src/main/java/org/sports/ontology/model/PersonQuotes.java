@@ -1,17 +1,19 @@
 package org.sports.ontology.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.sports.ontology.enums.SentimentEnum;
 
 public class PersonQuotes {
-	private String person;
-	private List<String> quotes;
+	private String person;	
+	private Map<String, SentimentEnum> quotes;
 	
-	public List<String> getQuotes() {
+	public Map<String, SentimentEnum> getQuotes() {
 		return quotes;
 	}
 	
-	public void setQuotes(List<String> quotes) {
+	public void setQuotes(Map<String, SentimentEnum> quotes) {
 		this.quotes = quotes;
 	}
 	
@@ -23,12 +25,12 @@ public class PersonQuotes {
 		this.person = person;
 	}
 	
-	public void addQuote(String quote) {
-		this.quotes.add(quote);
+	public void addQuote(String quote, SentimentEnum sentiment) {
+		this.quotes.put(quote, sentiment);
 	}
 	
 	public PersonQuotes() {
 		this.person = "";
-		this.quotes = new ArrayList<String>();
+		this.quotes = new HashMap<String, SentimentEnum>();
 	}
 }

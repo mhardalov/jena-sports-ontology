@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.sports.ontology.enums.SentimentEnum;
 import org.sports.ontology.model.DocumentModel;
 import org.sports.ontology.model.DocumentQuotes;
 import org.sports.ontology.model.OntologyResult;
@@ -21,9 +22,9 @@ public class OntologyTests {
 	public void ontologyTest() {
 		PersonQuotes quotes = new PersonQuotes();
 		quotes.setPerson("John Smith");
-		quotes.addQuote("I'm the best.");
-		quotes.addQuote("Ontology testing with some quotes by me.");
-		quotes.addQuote("Third sentsence for today.");
+		quotes.addQuote("I'm the best.", SentimentEnum.POSITIVE);
+		quotes.addQuote("Ontology testing with some quotes by me.", SentimentEnum.NEUTRAL);
+		quotes.addQuote("Third sentsence for today.", SentimentEnum.NEUTRAL);
 
 		ResultRelation relation = new ResultRelation("sample");
 		relation.setResult("7:2");
@@ -43,8 +44,8 @@ public class OntologyTests {
 
 		quotes = new PersonQuotes();
 		quotes.setPerson("Tom Johnes");
-		quotes.addQuote("Second Quote by me.");
-		quotes.addQuote("Come on do it!");
+		quotes.addQuote("Second Quote by me.", SentimentEnum.NEUTRAL);
+		quotes.addQuote("Come on do it!", SentimentEnum.NEUTRAL);
 
 		relation = new ResultRelation("location");
 		relation.setResult("10s");
@@ -70,9 +71,9 @@ public class OntologyTests {
 		
 		PersonQuotes quotes = new PersonQuotes();
 		quotes.setPerson("John Smith");
-		quotes.addQuote("I'm the best.");
-		quotes.addQuote("Ontology testing with some quotes by me.");
-		quotes.addQuote("Third sentsence for today.");
+		quotes.addQuote("I'm the best.", SentimentEnum.POSITIVE);
+		quotes.addQuote("Ontology testing with some quotes by me.", SentimentEnum.NEUTRAL);
+		quotes.addQuote("Third sentsence for today.", SentimentEnum.NEUTRAL);
 
 		ResultRelation relation = new ResultRelation("sample");
 		relation.setResult("7:2");

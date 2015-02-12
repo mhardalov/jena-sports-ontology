@@ -9,8 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
+import org.sports.ontology.enums.SentimentEnum;
 import org.sports.ontology.model.DocumentModel;
 import org.sports.ontology.model.DocumentQuotes;
 import org.sports.ontology.model.DocumentResults;
@@ -186,12 +188,13 @@ public class OntologyHandler {
 	public void addPersonQuote(PersonQuotes quotes, Resource document) {
 		String person = quotes.getPerson();
 
-		for (String quote : quotes.getQuotes()) {
+		for (Entry<String, SentimentEnum> quote : quotes.getQuotes().entrySet()) {
 
 			document.addProperty(
 					SportsOntology.QUOTE,
 					model.createResource()
-							.addProperty(SportsOntology.QUOTEDTEXT, quote)
+							.addProperty(SportsOntology.QUOTEDTEXT, quote.getKey())
+							.addProperty(SportsOntology.SENTIMENT, quote.getValue().toString())
 							.addProperty(SportsOntology.PERSONNAME, person));
 
 		}
@@ -259,11 +262,14 @@ public class OntologyHandler {
 				String quote = stmn.getProperty(SportsOntology.QUOTEDTEXT)
 						.getString();
 
+				SentimentEnum sentiment = SentimentEnum.findByText(stmn.getProperty(SportsOntology.SENTIMENT)
+						.getString());
+				
 				String person = stmn.getProperty(SportsOntology.PERSONNAME)
 						.getString();
 
 				PersonQuotes personQuote = new PersonQuotes();
-				personQuote.addQuote(quote);
+				personQuote.addQuote(quote, sentiment);
 				personQuote.setPerson(person);				
 				
 				DocumentModel document = this.parseDocumentInfo(stmn);
