@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import org.sports.ontology.enums.SentimentEnum;
@@ -18,6 +17,7 @@ import org.sports.ontology.model.DocumentQuotes;
 import org.sports.ontology.model.DocumentResults;
 import org.sports.ontology.model.OntologyResult;
 import org.sports.ontology.model.PersonQuotes;
+import org.sports.ontology.model.QuoteSentiment;
 import org.sports.ontology.model.ResultRelation;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -188,13 +188,13 @@ public class OntologyHandler {
 	public void addPersonQuote(PersonQuotes quotes, Resource document) {
 		String person = quotes.getPerson();
 
-		for (Entry<String, SentimentEnum> quote : quotes.getQuotes().entrySet()) {
+		for (QuoteSentiment quote : quotes.getQuotes()) {
 
 			document.addProperty(
 					SportsOntology.QUOTE,
 					model.createResource()
-							.addProperty(SportsOntology.QUOTEDTEXT, quote.getKey())
-							.addProperty(SportsOntology.SENTIMENT, quote.getValue().toString())
+							.addProperty(SportsOntology.QUOTEDTEXT, quote.getQuote())
+							.addProperty(SportsOntology.SENTIMENT, quote.getSentiment().toString())
 							.addProperty(SportsOntology.PERSONNAME, person));
 
 		}
